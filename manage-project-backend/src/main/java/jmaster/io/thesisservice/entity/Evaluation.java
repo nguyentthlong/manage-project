@@ -16,8 +16,8 @@ public class Evaluation {
 	private Integer id;
 	
 	private String description;
-
-	private Float mark;
+	
+	private Double mark;
 	
 	@ManyToOne
 	private Student student;
@@ -27,4 +27,5 @@ public class Evaluation {
 	
 	@ManyToOne
 	private Thesis thesis;
+	
 }

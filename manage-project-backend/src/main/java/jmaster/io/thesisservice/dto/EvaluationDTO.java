@@ -10,8 +10,8 @@ public class EvaluationDTO {
 	private Integer id;
 	
 	private String description;
-
-	private Float mark;
+	
+	private Double mark;
 	
 	private StudentDTO student;
 	

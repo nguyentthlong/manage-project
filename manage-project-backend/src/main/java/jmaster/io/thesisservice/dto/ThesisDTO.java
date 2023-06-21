@@ -1,11 +1,10 @@
 package jmaster.io.thesisservice.dto;
 
-import javax.persistence.Id;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Data;
 
-import java.util.Date;
+import lombok.Data;
 
 @Data
 public class ThesisDTO {
@@ -14,7 +13,7 @@ public class ThesisDTO {
 	private String title;
 	
 	private String description;
-
+	
 	private String status;
 
 	@JsonFormat(pattern = "dd/MM/yyyy HH:mm", timezone = "Asia/Ho_Chi_Minh")

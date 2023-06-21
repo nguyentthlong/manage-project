@@ -24,35 +24,35 @@ public class MajorAPIController {
     private MajorService majorService;
 
     @PostMapping("/major/")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseDTO<MajorDTO> create(@RequestBody @Valid MajorDTO majorDTO) throws IOException {
         majorService.create(majorDTO);
         return ResponseDTO.<MajorDTO>builder().code(String.valueOf(HttpStatus.OK.value())).data(majorDTO).build();
     }
 
     @PutMapping("/major/update")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseDTO<Void> update(@RequestBody @Valid MajorDTO majorDTO) throws IOException {
         majorService.update(majorDTO);
         return ResponseDTO.<Void>builder().code(String.valueOf(HttpStatus.OK.value())).build();
     }
 
     @GetMapping("/major/{id}")
-//    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_USER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_STUDENT', 'ROLE_TEACHER')")
     public ResponseDTO<MajorDTO> get(@PathVariable(value = "id") int id) {
         return ResponseDTO.<MajorDTO>builder().code(String.valueOf(HttpStatus.OK.value()))
                 .data(majorService.get(id)).build();
     }
 
     @DeleteMapping("/major/delete/{id}")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseDTO<Void> delete(@PathVariable(value = "id") int id) {
         majorService.delete(id);
         return ResponseDTO.<Void>builder().code(String.valueOf(HttpStatus.OK.value())).build();
     }
 
     @DeleteMapping("/major/{ids}")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseDTO<Void> deleteAll(@PathVariable(value = "ids") List<Integer> ids) {
         majorService.deleteAll(ids);
         return ResponseDTO.<Void>builder().code(String.valueOf(HttpStatus.OK.value())).build();
@@ -60,10 +60,16 @@ public class MajorAPIController {
 
 
     @PostMapping("/major/search")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STUDENT', 'ROLE_TEACHER')")
     public ResponseDTO<List<MajorDTO>> search(@RequestBody @Valid SearchDTO searchDTO) {
-    	System.out.println("1");
         return majorService.searchByTitle(searchDTO);
   
+    }
+    
+    @GetMapping("/major/statistic")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STUDENT','ROLE_TEACHER')")
+    public  ResponseDTO<Long> countThesis() {
+        return ResponseDTO.<Long>builder().code(String.valueOf(HttpStatus.OK.value()))
+        		.data(majorService.countMajor()).build();
     }
 }

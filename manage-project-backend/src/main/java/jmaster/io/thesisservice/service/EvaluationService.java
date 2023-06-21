@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import javax.persistence.NoResultException;
 
-import jmaster.io.thesisservice.entity.Student;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -16,8 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +33,9 @@ import jmaster.io.thesisservice.utils.CacheNames;
 public interface EvaluationService {
     void create(EvaluationDTO evaluationDTO);
 
-    void update(EvaluationDTO evaluationDTO);
+    Long countEvaluation();
+
+	void update(EvaluationDTO evaluationDTO);
 
     void delete(Integer id);
 
@@ -45,11 +44,6 @@ public interface EvaluationService {
     EvaluationDTO get(Integer id);
 
     ResponseDTO<List<EvaluationDTO>> find(SearchDTO searchDTO);
-
-    //Tổng số đánh giá
-    Page<Long> countEvaluations(Pageable pageable);
-
-    Page<Object[]> findHighestMark(Pageable pageable);
 
 
 @Service
@@ -134,15 +128,10 @@ class EvaluationServiceImpl implements  EvaluationService{
     }
 
     @Override
-    public Page<Long> countEvaluations(Pageable pageable) {
-        return evaluationRepo.countEvaluations(pageable);
-    }
-
-    @Override
-    public Page<Object[]> findHighestMark(Pageable pageable) {
-        return evaluationRepo.findHighestMark(pageable);
-    }
-
+	public Long countEvaluation() {
+		return evaluationRepo.count();
+	}
+    
     private EvaluationDTO convert(Evaluation evaluation) {
         return new ModelMapper().map(evaluation, EvaluationDTO.class);
     }

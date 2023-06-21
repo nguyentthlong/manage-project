@@ -28,7 +28,9 @@ import java.util.stream.Collectors;
 public interface FacultyService {
     void create(FacultyDTO facultyDTO);
 
-    void update(FacultyDTO facultyDTO);
+    Long countFaculty();
+
+	void update(FacultyDTO facultyDTO);
 
     void delete(Integer id);
 
@@ -113,6 +115,11 @@ class facultyServiceImpl implements  FacultyService{
         return responseDTO;
     }
 
+    @Override
+    public Long countFaculty() {
+    	return facultyRepo.count();
+    }
+    
     private FacultyDTO convert(Faculty faculty) {
         return new ModelMapper().map(faculty, FacultyDTO.class);
     }

@@ -8,7 +8,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 
 public interface DocumentService {
 void create(DocumentDTO documentDTO);
+Long countDocument();
 void update(DocumentDTO documentDTO);
 
 void delete(Integer id);
@@ -38,14 +40,6 @@ DocumentDTO get(Integer id);
 
 ResponseDTO<List<DocumentDTO>> find(SearchDTO searchDTO);
 
-	Page<Long> countDocuments(Pageable pageable);
-
-	Page<Long> countDocumentsByUserID(int userID, Pageable pageable);
-
-	Page<Document> getDocumentsByStudentCode(String studentCode, Pageable pageable);
-
-	//Lấy danh sách tài liệu theo người dùng
-//	Page<Document> getDocumentsByUser(String username, Pageable pageable);
 }
 
 @Service
@@ -101,7 +95,7 @@ class DocumentServiceImpl implements DocumentService{
 	    return documentRepo.findById(id).map(document -> convert(document)).orElseThrow(NoResultException::new);
 	}
 
-	@Cacheable(cacheNames = CacheNames.CACHE_DOCUMENT_FIND, unless = "#result.totalElements == 0", key = "#searchDTO.toString()")
+//	@Cacheable(cacheNames = CacheNames.CACHE_DOCUMENT_FIND, unless = "#result.totalElements == 0", key = "#searchDTO.toString()")
 	@Override
 	public ResponseDTO<List<DocumentDTO>> find(SearchDTO searchDTO) {
 	    List<Sort.Order> orders = Optional.ofNullable(searchDTO.getOrders()).orElseGet(Collections::emptyList).stream()
@@ -113,8 +107,17 @@ class DocumentServiceImpl implements DocumentService{
 	            }).collect(Collectors.toList());
 
 	    Pageable pageable = PageRequest.of(searchDTO.getPage(), searchDTO.getSize(), Sort.by(orders));
-
-	    Page<Document> page = documentRepo.searchByTitle(searchDTO.getValue(), pageable);
+	    
+      String username = SecurityContextHolder.getContext().getAuthentication().getName();
+      List<String> list = SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().map(i -> i.getAuthority())
+    		  .collect(Collectors.toList());
+      Page<Document> page = null;
+      if(list.contains("ROLE_ADMIN") || list.contains("ROLE_TEACHER"))	
+      {
+    	  page = documentRepo.searchByTitle(searchDTO.getValue(), pageable);
+      } else if(list.contains("ROLE_STUDENT")) {
+    	  page = documentRepo.searchDocumentByUserId(username, searchDTO.getValue(), pageable);
+      }
 
 	    ResponseDTO<List<DocumentDTO>> responseDTO = new ModelMapper().map(page, ResponseDTO.class);
 	    responseDTO.setData(page.get().map(document -> convert(document)).collect(Collectors.toList()));
@@ -122,25 +125,10 @@ class DocumentServiceImpl implements DocumentService{
 	}
 
 	@Override
-	public Page<Long> countDocuments(Pageable pageable) {
-		return documentRepo.countDocuments(pageable);
+	public Long countDocument() {
+		return documentRepo.count();
 	}
-
-	@Override
-	public Page<Long> countDocumentsByUserID(int userID, Pageable pageable) {
-		return documentRepo.countDocumentsByUserID(userID, pageable);
-	}
-
-	@Override
-	public Page<Document> getDocumentsByStudentCode(String studentCode, Pageable pageable) {
-		return documentRepo.getDocumentsByStudentCode(studentCode, pageable);
-	}
-
-//	@Override
-//	public Page<Document> getDocumentsByUser(String username, Pageable pageable) {
-//		return documentRepo.getDocumentsByUser(username, pageable);
-//	}
-
+	
 	private DocumentDTO convert(Document document) {
 	    return new ModelMapper().map(document, DocumentDTO.class);
 	}

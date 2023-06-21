@@ -4,7 +4,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
@@ -23,13 +22,13 @@ import lombok.Data;
 public abstract class CreateAuditable {
 
 	@CreatedBy
-	@JoinColumn(name = "created_by")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "created_by", updatable = false)
+	@ManyToOne
 	private User createdBy;
 	
 	@CreatedDate
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name = "created_date")
+	@Column(name = "created_date", updatable = false)
 	private Date createdDate;
 
 }

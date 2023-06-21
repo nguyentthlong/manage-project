@@ -21,7 +21,7 @@ public class FacultyAPIController {
     private FacultyService facultyService;
 
     @PostMapping("/admin/faculty/")
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseDTO<FacultyDTO> create(@RequestBody @Valid FacultyDTO facultyDTO) throws IOException {
         // goi qua Service
         facultyService.create(facultyDTO);
@@ -29,28 +29,28 @@ public class FacultyAPIController {
     }
 
     @PutMapping("/admin/faculty/update")
-//    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_EDITOR')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseDTO<Void> update(@RequestBody @Valid FacultyDTO facultyDTO) throws IOException {
         facultyService.update(facultyDTO);
         return ResponseDTO.<Void>builder().code(String.valueOf(HttpStatus.OK.value())).build();
     }
 
     @GetMapping("/admin/faculty/{id}")
-//    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STUDENT')")
     public ResponseDTO<FacultyDTO> get(@PathVariable(value = "id") int id) {
         return ResponseDTO.<FacultyDTO>builder().code(String.valueOf(HttpStatus.OK.value()))
                 .data(facultyService.get(id)).build();
     }
 
     @DeleteMapping(value = "/admin/faculty/delete/{id}")
-//    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DELETE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseDTO<Void> delete(@PathVariable(value = "id") int id) {
         facultyService.delete(id);
         return ResponseDTO.<Void>builder().code(String.valueOf(HttpStatus.OK.value())).build();
     }
 
     @DeleteMapping("/admin/faculty/deleteAll/{ids}")
-//    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DELETE')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseDTO<Void> deleteAll(@PathVariable(value = "ids") List<Integer> ids) {
         facultyService.deleteAll(ids);
         return ResponseDTO.<Void>builder().code(String.valueOf(HttpStatus.OK.value())).build();
@@ -58,9 +58,15 @@ public class FacultyAPIController {
 
 
     @PostMapping("/admin/faculty/search")
-//    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_USER')")
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_STUDENT')")
     public ResponseDTO<List<FacultyDTO>> search(@RequestBody @Valid SearchDTO searchDTO) {
         return facultyService.find(searchDTO);
     }
 
+    @GetMapping("/admin/faculty/statistic")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STUDENT','ROLE_TEACHER')")
+    public  ResponseDTO<Long> countThesis() {
+        return ResponseDTO.<Long>builder().code(String.valueOf(HttpStatus.OK.value()))
+        		.data(facultyService.countFaculty()).build();
+    }
 }

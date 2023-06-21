@@ -27,7 +27,8 @@ import java.util.stream.Collectors;
 
 public interface MajorService {
   void create(MajorDTO majorDTO);
-  void update(MajorDTO majorDTO);
+  Long countMajor();
+void update(MajorDTO majorDTO);
   void delete(Integer id);
   void deleteAll(List < Integer > ids);
   MajorDTO get(Integer id);
@@ -106,6 +107,12 @@ class MajorServiceImpl implements MajorService {
     responseDTO.setData(page.get().map(major -> convert(major)).collect(Collectors.toList()));
     return responseDTO;
   }
+  
+  @Override
+  public Long countMajor() {
+  	return majorRepo.count();
+  }
+  
   private MajorDTO convert(Major major) {
     return new ModelMapper().map(major, MajorDTO.class);
   }

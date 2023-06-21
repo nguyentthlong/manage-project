@@ -16,10 +16,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepo extends JpaRepository<User,Integer> {
 
-	// y doan nay la tim theo ten chua tu khoa dung k hay la tim chinh xac nhi
-	// chứa từ khóa ạ :v the thi them %% vao nhu kia la dc
-	
-    @Query("SELECT u FROM User u WHERE u.username LIKE :x ")
+    @Query("SELECT u FROM User u WHERE u.fullname LIKE :x ")
     Page<User> searchByName(@Param("x") String s, Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE u.username LIKE :name ")
@@ -29,17 +26,6 @@ public interface UserRepo extends JpaRepository<User,Integer> {
     Page<User> findAllIds(Pageable pageable);
     
     //User findByUsername(String username);
-
-    //Tổng số người dùng
-    @Query("SELECT COUNT(u) FROM User u")
-    Page<User> countUsers(Pageable pageable);
-
-    @Query("SELECT COUNT(u) FROM User u")
-    Long countUsers();
-
-    //Thống kê theo giới tính
-    @Query("SELECT COUNT(u) FROM User u WHERE u.gender = :gender")
-    int countUsersByGender(@Param("gender") String gender);
 
     Optional<User> findByUsername(String username);
 

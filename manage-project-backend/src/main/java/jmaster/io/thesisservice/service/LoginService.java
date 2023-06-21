@@ -1,5 +1,6 @@
 package jmaster.io.thesisservice.service;
 
+import jmaster.io.thesisservice.dto.LoginUser;
 import jmaster.io.thesisservice.entity.Role;
 import jmaster.io.thesisservice.repository.UserRepo;
 
@@ -21,22 +22,21 @@ public class LoginService implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		jmaster.io.thesisservice.entity.User  user = userRepo.findByUsername(username).stream().findFirst().orElse(null);
+		jmaster.io.thesisservice.entity.User user = userRepo.findByUsername(username).stream().findFirst().orElse(null);
 		// nguồn xác thực đọc từ Database
-		if(user == null) {
+		if (user == null) {
 			throw new UsernameNotFoundException("User Not Found");
 		}
 
 		List<SimpleGrantedAuthority> list = new ArrayList<SimpleGrantedAuthority>();
 
-		for(Role role : user.getRoles()) {
+		for (Role role : user.getRoles()) {
 			list.add(new SimpleGrantedAuthority(role.getName()));
 		}
 
 		// tạo user của Security
 		// user đăng nhập hiện tại
-		User currentUser = new User(username, user.getPassword(), list);
-
-		return (UserDetails) currentUser;
+		LoginUser currentUser = new LoginUser(user.getId(), username, user.getPassword(), list);
+		return currentUser;
 	}
 }

@@ -1,26 +1,33 @@
 package jmaster.io.thesisservice.entity;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
 
 @Data
 @Entity
 @Table(name = "user")
-//@EntityListeners(AuditingEntityListener.class)
-//@EqualsAndHashCode(callSuper = false)
-public class User{
+@EqualsAndHashCode(callSuper = false)
+public class User extends CreateAuditable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -29,41 +36,30 @@ public class User{
 
 	private String password;
 
-	@Column(name = "avatar")
-	private String avatar; // URL
+	private String fullname;
 	
+	private String address;
+	
+	private Date birthdate;
+	
+	private String gender;
+	
+	private String avatar; // URL
+
 	@Column(name = "email", unique = true)
 	private String email;
 
 	@Column(name = "phoneNumber", unique = true)
 	private String phoneNumber;
 
-	@Column(name = "FullName")
-	private String fullName;
-
-	@Temporal(TemporalType.DATE)
-	@Column(name = "DateOfBirth")
-	private Date dateOfBirth;
-
-	@Column(name = "Gender")
-	private String gender;
-
-	@Column(name = "Address")
-	private String address;
-	
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(
-			name = "users_roles",
-			joinColumns = @JoinColumn(name = "user_id"),
-			inverseJoinColumns = @JoinColumn(name = "role_id")
-	)
-	private Set<Role> roles = new HashSet<>();
-	
-	@OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
-	@JsonIgnore //tranh loop vo han
+	@JoinTable(name = "users_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private List<Role> roles = new ArrayList<>();
+
+	@OneToOne(mappedBy = "user")
 	private Student student;
-	
-	@OneToOne(mappedBy = "user", fetch = FetchType.EAGER)
-	@JsonIgnore
+
+	@OneToOne(mappedBy = "user")
 	private Teacher teacher;
+
 }

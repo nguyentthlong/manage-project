@@ -1,6 +1,7 @@
 
 package jmaster.io.thesisservice.service;
 
+import jmaster.io.thesisservice.entity.Classes;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -9,7 +10,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,20 +30,12 @@ import java.util.stream.Collectors;
 
 public interface StudentService {
 void create(StudentDTO studentDTO);
+Long countStudent();
 void update(StudentDTO studentDTO);
 void delete(Integer id);
 void deleteAll(List<Integer> ids);
 StudentDTO get(Integer id);
 ResponseDTO<List<StudentDTO>> searchByTitle(SearchDTO searchDTO);
-
-Long countStudentsByStudentCode(String studentCode);
-
-Page<Long> countStudents(Pageable pageable);
-
-Page<Long> countStudentsByMajor(int majorID, Pageable pageable);
-
-Page<Student> getStudentsByMajor(int majorID, Pageable pageable);
-
 }
 
 @Service
@@ -57,6 +49,9 @@ UserRepo userRepo;
 @Autowired
 MajorRepo majorRepo;
 
+@Autowired
+ClassesRepo classesRepo;
+
 @Override
 @Transactional
 @CacheEvict(value = CacheNames.CACHE_STUDENT_FIND,allEntries = true)
@@ -64,9 +59,11 @@ public void create(StudentDTO studentDTO) {
     ModelMapper mapper = new ModelMapper();
     User user = userRepo.findById(studentDTO.getUser().getId()).orElseThrow(NoResultException::new);
     Major major = majorRepo.findById(studentDTO.getMajor().getId()).orElseThrow(NoResultException::new);
+    Classes classes = classesRepo.findById(studentDTO.getStudentClass().getId()).orElseThrow(NoResultException::new);
     Student student = new Student();
     student.setUser(user);
     student.setMajor(major);
+    student.setStudentClass(classes);
 	student.setStudentCode(studentDTO.getStudentCode());
     studentDTO.setId(student.getId());
 	studentRepo.save(student);
@@ -125,28 +122,12 @@ public ResponseDTO<List<StudentDTO>> searchByTitle(SearchDTO searchDTO) {
     return responseDTO;
 }
 
-    //Thống kê số lượng sinh viên theo Mã sinh viên
-    @Override
-    public Long countStudentsByStudentCode(String studentCode) {
-        return studentRepo.countStudentsByStudentCode(studentCode);
-    }
+@Override
+public Long countStudent() {
+	return studentRepo.count();
+}
 
-    @Override
-    public Page<Long> countStudents(Pageable pageable) {
-        return studentRepo.countStudents(pageable);
-    }
-
-    @Override
-    public Page<Long> countStudentsByMajor(int majorID, Pageable pageable) {
-        return studentRepo.countStudentsByMajor(majorID, pageable);
-    }
-
-    @Override
-    public Page<Student> getStudentsByMajor(int majorID, Pageable pageable) {
-        return studentRepo.getStudentsByMajor(majorID, pageable);
-    }
-
-    private StudentDTO convert(Student student) {
+private StudentDTO convert(Student student) {
     return new ModelMapper().map(student, StudentDTO.class);
 }
 }

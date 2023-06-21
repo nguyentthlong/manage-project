@@ -8,8 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +27,13 @@ import java.util.stream.Collectors;
 
 public interface ThesisService {
 void create(ThesisDTO thesisDTO);
+
+Long countThesisByStatus(String status);
+
+Long countThesis();
+
+Page<Thesis> getThesisByStatus(String status, Pageable pageable);
+
 void update(ThesisDTO thesisDTO);
 
 void delete(Integer id);
@@ -39,14 +44,7 @@ ThesisDTO get(Integer id);
 
 ResponseDTO<List<ThesisDTO>> find(SearchDTO searchDTO);
 
-	//Tổng số đồ án
-	Page<Long> countThesis(Pageable pageable);
 
-	//Thống kê đồ án theo trạng thái:
-	Page<Long> countThesisByStatus(@Param("status") String status, Pageable pageable);
-
-	//Lấy danh sách đồ án theo trạng thái và phân trang
-	Page<Thesis> getThesisByStatus(@Param("status") String status, Pageable pageable);
 }
 
 @Service
@@ -122,24 +120,23 @@ class thesisServiceImpl implements ThesisService{
 	}
 
 	@Override
-	public Page<Long> countThesis(Pageable pageable) {
-		return thesisRepo.countThesis(pageable);
+	public Long countThesis() {
+		return thesisRepo.count();
 	}
 
 	@Override
-	public Page<Long> countThesisByStatus(String status, Pageable pageable) {
-		return thesisRepo.countThesisByStatus(status, pageable);
+	public Long countThesisByStatus(String status ) {
+		return thesisRepo.countThesisByStatus(status);
 	}
-
+	
+	private ThesisDTO convert(Thesis thesis) {
+	    return new ModelMapper().map(thesis, ThesisDTO.class);
+	}
+	
 	@Override
 	public Page<Thesis> getThesisByStatus(String status, Pageable pageable) {
 		return thesisRepo.getThesisByStatus(status, pageable);
 	}
-
-	private ThesisDTO convert(Thesis thesis) {
-	    return new ModelMapper().map(thesis, ThesisDTO.class);
-	}
-
 }
 	
 	

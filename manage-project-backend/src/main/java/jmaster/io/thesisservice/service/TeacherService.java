@@ -8,14 +8,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jmaster.io.thesisservice.dto.FacultyDTO;
 import jmaster.io.thesisservice.dto.ResponseDTO;
 import jmaster.io.thesisservice.dto.SearchDTO;
 import jmaster.io.thesisservice.dto.StudentDTO;
 import jmaster.io.thesisservice.dto.TeacherDTO;
+import jmaster.io.thesisservice.dto.UserDTO;
 import jmaster.io.thesisservice.entity.Faculty;
 import jmaster.io.thesisservice.entity.Major;
 import jmaster.io.thesisservice.entity.Student;
@@ -32,17 +33,12 @@ import java.util.stream.Collectors;
 
 public interface TeacherService {
     void create(TeacherDTO teacherDTO);
-    void update(TeacherDTO teacherDTO);
+	Long countTeacher();
+	void update(TeacherDTO teacherDTO);
     void delete(Integer id);
     void deleteAll(List<Integer> ids);
     TeacherDTO get(Integer id);
     ResponseDTO<List<TeacherDTO>> searchByTitle(SearchDTO searchDTO);
-
-    Page<Long> countTeachers(Pageable pageable);
-
-    Page<Long> countTeachersByFaculty(int facultyID, Pageable pageable);
-
-    Page<Teacher> getTeachersByFaculty(int facultyID, Pageable pageable);
 }
 
 @Service
@@ -76,11 +72,10 @@ class TutorServiceImpl implements TeacherService {
     @Transactional
     @CacheEvict(value = CacheNames.CACHE_TEACHER_FIND, allEntries = true)
     public void update(TeacherDTO teacherDTO) {
-        ModelMapper mapper = new ModelMapper();
-        mapper.createTypeMap(TeacherDTO.class, Teacher.class)
-                .setProvider(p -> teacherRepo.findById(teacherDTO.getId()).orElseThrow(NoResultException::new));
-
-        Teacher teacher = mapper.map(teacherDTO, Teacher.class);
+        Teacher teacher = teacherRepo.findById(teacherDTO.getId()).orElseThrow(NoResultException::new);
+        teacher.setTeacherCode(teacherDTO.getTeacherCode());
+        Faculty faculty = facultyRepo.findById(teacherDTO.getFaculty().getId()).orElseThrow(NoResultException::new);
+        teacher.setFaculty(faculty);
         teacherRepo.save(teacher);
     }
 
@@ -125,24 +120,13 @@ class TutorServiceImpl implements TeacherService {
         return responseDTO;
     }
 
-    //Tổng số giáo viên
     @Override
-    public Page<Long> countTeachers(Pageable pageable) {
-        return teacherRepo.countTeachers(pageable);
+    public Long countTeacher() {
+    	return teacherRepo.count();
     }
-
-    @Override
-    public Page<Long> countTeachersByFaculty(int facultyID, Pageable pageable) {
-        return teacherRepo.countTeachersByFaculty(facultyID, pageable);
-    }
-
-    //get gv theo khoa
-    @Override
-    public Page<Teacher> getTeachersByFaculty(int facultyID, Pageable pageable) {
-        return teacherRepo.getTeachersByFaculty(facultyID, pageable);
-    }
-
+    
     private TeacherDTO convert(Teacher teacher) {
         return new ModelMapper().map(teacher, TeacherDTO.class);
     }
+
  }

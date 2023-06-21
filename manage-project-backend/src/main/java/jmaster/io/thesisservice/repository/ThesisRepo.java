@@ -24,14 +24,10 @@ public interface ThesisRepo extends JpaRepository<Thesis, Integer>{
 	@Modifying
     @Query("delete from Thesis t where t.teacher.id = :tid")
     public void deleteByTeacherId(@Param("tid") int teacherId);
-
-    //Tổng số đồ án
-    @Query("SELECT COUNT(t) FROM Thesis t")
-    Page<Long> countThesis(Pageable pageable);
-
+	
     //Thống kê đồ án theo trạng thái:
     @Query("SELECT COUNT(t) FROM Thesis t WHERE t.status = :status")
-    Page<Long> countThesisByStatus(@Param("status") String status, Pageable pageable);
+    Long  countThesisByStatus(@Param("status") String status);
 
     //Lấy danh sách đồ án theo trạng thái và phân trang
     @Query("SELECT t FROM Thesis t WHERE t.status = :status")

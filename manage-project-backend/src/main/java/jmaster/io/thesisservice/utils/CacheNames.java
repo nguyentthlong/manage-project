@@ -6,6 +6,9 @@ public interface CacheNames {
     final String CACHE_USER_ROLE = "user-role";
     final String CACHE_USER_ROLE_FIND = "user-role-find";
 
+    final String CACHE_ROLE = "role";
+    final String CACHE_ROLE_FIND = "role-find";
+    
     final String CACHE_FACULTY = "faculty";
     final String CACHE_FACULTY_FIND = "faculty-find";
    
@@ -29,6 +32,9 @@ public interface CacheNames {
     
     final String CACHE_THESIS = "thesis";
     final String CACHE_THESIS_FIND = "thesis-find";
+    
+    final String CACHE_CLASSES = "classes";
+    final String CACHE_CLASSES_FIND = "classes-find";
     
     final String CACHE_DOCUMENT = "document";
     final String CACHE_DOCUMENT_FIND = "document-find";
